@@ -1,5 +1,6 @@
 const cheats = {}
-let xOffset= 0
+let xOffset= 10
+let yOffset = 93
 
 function startCheats() {
     // Variables
@@ -33,8 +34,8 @@ function startCheats() {
     div.style.backgroundColor = "white"
     div.style.width="500px";
     div.style.height="500px"
-    div.style.left="1800px"
-    div.style.top="50px"
+    div.style.left="0px"
+    div.style.top="0px"
     div.style.position="absolute"
     div.style.borderRadius="20px"
     document.body.appendChild(div)
@@ -101,14 +102,19 @@ function startCheats() {
         CURRENTSPEEDTEXT.innerHTML="Current speed: " + Runner.instance_.currentSpeed
     })
 
-    const ACCELERATIONCONFIG = document.createElement("input")
-    ACCELERATIONCONFIG.type="text"
-    ACCELERATIONCONFIG.placeholder="Enter acceleration (HAS TO BE A NUMBER)"
-    ACCELERATIONCONFIG.style.left="10px"
-    ACCELERATIONCONFIG.style.top="79px"
-    ACCELERATIONCONFIG.style.position="absolute"
-    ACCELERATIONCONFIG.style.opacity=100
-    div.appendChild(ACCELERATIONCONFIG)
+    const ACCELERATIONINPUTCONFIG = document.createElement("input");
+    ACCELERATIONINPUTCONFIG.type = "text";
+    ACCELERATIONINPUTCONFIG.placeholder = "Enter acceleration (HAS TO BE A NUMBER)";
+    ACCELERATIONINPUTCONFIG.style.cssText = "left: 10px; top: 79px; position: absolute; opacity: 100%;";
+
+    div.appendChild(ACCELERATIONINPUTCONFIG);
+
+
+    const JUMPPOWERCONFIG = document.createElement("input")
+    JUMPPOWERCONFIG.type = "text";
+    JUMPPOWERCONFIG.placeholder = "Enter Jump power (HAS TO BE A NUMBER)";
+    Object.assign(JUMPPOWERCONFIG.style, {left:"10px", top:"102px", opacity:"100%", position:"absolute"})
+    div.appendChild(JUMPPOWERCONFIG)
 
 
     // Add event listener
@@ -133,20 +139,31 @@ function startCheats() {
     MAXSPEEDCONFIG.addEventListener("focusout", () => {
         cheats.MAXSPEED(parseFloat(MAXSPEEDCONFIG.value))
     })
-    ACCELERATIONCONFIG.addEventListener("focusout", () => {
-        cheats.ACCELERATION(parseFloat(ACCELERATIONCONFIG.value))
+    ACCELERATIONINPUTCONFIG.addEventListener("focusout", () => {
+        cheats.ACCELERATION(parseFloat(ACCELERATIONINPUTCONFIG.value))
     })
+    JUMPPOWERCONFIG.addEventListener("focusout",()=>{Runner.instance_.tRex.setJumpVelocity(parseFloat(JUMPPOWERCONFIG.value))})
 
     document.addEventListener("keypress", (ev) => {
-        if (ev.key=="d") {
-            xOffset+=5
-        }
-        else if (ev.key=="a") {
-            xOffset-=5
+        switch (ev.key) {
+            case "d":
+                xOffset+=5
+                break;
+            case "a":
+                xOffset-=5
+                break;
+            case "w":
+                yOffset-=5
+                break;
+            case "s":
+                yOffset+=5
+                break;
+            default:
+                break;
         }
     })
 
-    setInterval(()=>{Runner.instance_.tRex.xPos=xOffset})
+    setInterval(()=>{Runner.instance_.tRex.xPos=xOffset;if(FLOATCONFIG.checked==true){cheats.FLOAT(yOffset);}})
 }
 
 startCheats()
