@@ -2,9 +2,13 @@ const cheats = {}
 let xOffset= 10
 let yOffset = 93
 
+let jumpKeybindEnabled = true;
+let showUI=true;
+
 function startCheats() {
     // Variables
     const orgGameOver = Runner.instance_.gameOver
+    const jumpKeybind = {32: 1, 38: 1}
     
 
     // Define cheats
@@ -20,11 +24,24 @@ function startCheats() {
         }
     }
 
+    cheats.SETSPEED=(speed)=>{Runner.instance_.setSpeed(speed);};
+
     cheats.MAXSPEED=(maxspeed) => {
         Runner.config.MAX_SPEED = maxspeed
     }
     cheats.ACCELERATION=(acceleration)=> {
         Runner.config.ACCELERATION = acceleration
+    }
+
+    cheats.TOGGLEJUMPKEYBIND=()=> {
+        if (jumpKeybindEnabled) {
+            Runner.keycodes.JUMP={};
+            jumpKeybindEnabled=false;
+        }
+        else {
+            Runner.keycodes.JUMP=jumpKeybind;
+            jumpKeybindEnabled=true;
+        };
     }
 
 
@@ -88,7 +105,7 @@ function startCheats() {
     div.appendChild(MAXSPEEDCONFIG)
 
     const CURRENTSPEEDTEXT = document.createElement("p")
-    CURRENTSPEEDTEXT.style.left="200px"
+    CURRENTSPEEDTEXT.style.left="220px"
     CURRENTSPEEDTEXT.style.top="56px"
     CURRENTSPEEDTEXT.style.color="black"
     CURRENTSPEEDTEXT.style.margin="0"
@@ -115,6 +132,32 @@ function startCheats() {
     JUMPPOWERCONFIG.placeholder = "Enter Jump power (HAS TO BE A NUMBER)";
     Object.assign(JUMPPOWERCONFIG.style, {left:"10px", top:"102px", opacity:"100%", position:"absolute"})
     div.appendChild(JUMPPOWERCONFIG)
+    
+    const SPEEDCONFIG = document.createElement("input")
+    SPEEDCONFIG.type = "text";
+    SPEEDCONFIG.placeholder = "Enter Speed (HAS TO BE A NUMBER)";
+    Object.assign(SPEEDCONFIG.style, {left:"220px", top:"79px", opacity:"100%", position:"absolute"})
+    div.appendChild(SPEEDCONFIG)
+
+    const SPAWNOBSTACLESCONFIG = document.createElement("input")
+    SPAWNOBSTACLESCONFIG.style.position="absolute"
+    SPAWNOBSTACLESCONFIG.type="checkbox"
+    SPAWNOBSTACLESCONFIG.style.left="139px"
+    SPAWNOBSTACLESCONFIG.style.top="10px"
+    SPAWNOBSTACLESCONFIG.checked=true;
+    SPAWNOBSTACLESCONFIG.style.opacity=100
+    div.appendChild(SPAWNOBSTACLESCONFIG)
+
+    const SPAWNOBSTACLETEXT = document.createElement("p")
+    SPAWNOBSTACLETEXT.style.left="162px"
+    SPAWNOBSTACLETEXT.style.top="10px"
+    SPAWNOBSTACLETEXT.style.position="absolute"
+    SPAWNOBSTACLETEXT.style.margin="0"
+    SPAWNOBSTACLETEXT.style.padding="0"
+    SPAWNOBSTACLETEXT.style.opacity=100
+    SPAWNOBSTACLETEXT.style.color="black"
+    SPAWNOBSTACLETEXT.innerText="Spawn Obstacles"
+    div.appendChild(SPAWNOBSTACLETEXT)
 
 
     // Add event listener
@@ -136,8 +179,39 @@ function startCheats() {
         }
     })
 
+
+    cheats.DELETEUI=()=>{
+        div.remove()
+        showUI=false;
+    }
+    cheats.SHOWUI=()=> {
+        document.body.appendChild(div)
+        div.appendChild(DEATHFLOATCONFIG)
+        div.appendChild(FLOATCONFIG)
+        div.appendChild(DEATHFLOATTEXT)
+        div.appendChild(FLOATTEXT)
+        div.appendChild(MAXSPEEDCONFIG)
+        div.appendChild(CURRENTSPEEDTEXT)
+        div.appendChild(ACCELERATIONINPUTCONFIG);
+        div.appendChild(JUMPPOWERCONFIG)
+        div.appendChild(SPEEDCONFIG)
+        showUI=true;
+    }
+    cheats.TOGGLEUI=()=>{
+        if (showUI) {
+            cheats.DELETEUI()
+        }
+        else {
+            cheats.SHOWUI()
+        }
+        
+    }
+
     MAXSPEEDCONFIG.addEventListener("focusout", () => {
         cheats.MAXSPEED(parseFloat(MAXSPEEDCONFIG.value))
+    })
+    SPEEDCONFIG.addEventListener("focusout", () => {
+        cheats.SETSPEED(parseFloat(SPEEDCONFIG.value))
     })
     ACCELERATIONINPUTCONFIG.addEventListener("focusout", () => {
         cheats.ACCELERATION(parseFloat(ACCELERATIONINPUTCONFIG.value))
@@ -158,12 +232,27 @@ function startCheats() {
             case "s":
                 yOffset+=5
                 break;
+            case "q":
+                cheats.TOGGLEUI();
+                break;
             default:
                 break;
         }
     })
 
+    
+
     setInterval(()=>{Runner.instance_.tRex.xPos=xOffset;if(FLOATCONFIG.checked==true){cheats.FLOAT(yOffset);}})
+    setInterval(()=>{
+        if (!SPAWNOBSTACLESCONFIG.checked) {
+            Runner.instance_.horizon.obstacles=[]
+        }
+        
+    })
+    setInterval(()=>{
+        Runner.instance_.horizon.clouds=[]
+    })
 }
+
 
 startCheats()
